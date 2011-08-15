@@ -93,8 +93,13 @@ MESSAGE
       def require_no_authentication
         if warden.authenticated?(resource_name)
           resource = warden.user(resource_name)
-          flash[:alert] = I18n.t("devise.failure.already_authenticated")
-          redirect_to after_sign_in_path_for(resource)
+
+          if (request.format == :json)
+            respond_with resource, :location => redirect_location(resource_name, resource)
+          else
+            flash[:alert] = I18n.t("devise.failure.already_authenticated")
+            redirect_to after_sign_in_path_for(resource)
+          end
         end
       end
 
