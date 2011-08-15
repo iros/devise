@@ -95,8 +95,13 @@ MESSAGE
         args = no_input.dup.push :scope => resource_name
         if no_input.present? && warden.authenticate?(*args)
           resource = warden.user(resource_name)
-          flash[:alert] = I18n.t("devise.failure.already_authenticated")
-          redirect_to after_sign_in_path_for(resource)
+
+          if (request.format == :json)
+            respond_with resource, :location => redirect_location(resource_name, resource)
+          else
+            flash[:alert] = I18n.t("devise.failure.already_authenticated")
+            redirect_to after_sign_in_path_for(resource)
+          end
         end
       end
 
